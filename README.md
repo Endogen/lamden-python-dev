@@ -1,6 +1,6 @@
 # Lamden for Python Developers
 
-Guide for Python developers to get started fast on Lamden
+Getting started fast with developing on the Lamden blockchain
 
 ---
 
@@ -8,20 +8,27 @@ Guide for Python developers to get started fast on Lamden
 
 But first of all, why should you care? There are countless other blockchains out there, right? Well, let's see:
 
-- In general, it's a solid custom blockchain project with a nice community and interesting tokenomics
+- In general, it's a solid custom blockchain project written in Python with a nice community and interesting properties:
   
-- Always wanted to code smart contracts but Solidity just isn't your thing? On Lamden you code and deploy smart contracts with Python - directly from your browser wallet
+  - No blocktime
   
-- Core developers pay a bounty of \$400 (\$200 via PayPal and \$200 $ worth of TAU the native coin) to everyone that codes up with a smart contract that is somewhat userfull
+  - Fees are votable
   
+  - Around 100k TPS
+  
+  - Fast transactions (finalized in under one second)
+
+- Always wanted to code smart contracts but Solidity just isn't for you? On Lamden you code and deploy smart contracts with Python - directly from your browser wallet
+
+- Core developers pay a bounty of \$400 (\$200 via PayPal and \$200 worth of TAU the native coin) to everyone that codes up a smart contract that is somewhat userfull
+
 - Once you created a smart contract you receive 90% of all transaction fees that are processed through that smart contract
-  
 
 ## Prerequisites
 
 ### Python
 
-Make sure to have Python 3 installed (i would recommand to use Python 3.9) alongside `python3-dev` so that you are able to build Python extensions. To install it:
+Make sure to have Python 3 installed (i would recommand to use Python 3.9) alongside `python3-dev` so that you are able to build Python extensions. To install it all:
 
 ##### macOS
 
@@ -59,25 +66,29 @@ Please consult the [Mongo DB Docs](https://docs.mongodb.com/manual/administratio
 
 ## Interact with Lamden
 
-In general it's a good idea to check out the [Lamden GitHub](https://github.com/Lamden) but that can also be a bit confusing since there are quite a few Python repositories there and it's not always immediately clear what they do or if you need them to be able to start coding on Lamden.
+In general it's a good idea to check out the [Lamden GitHub](https://github.com/Lamden) but that can also be a bit confusing since there are quite a few Python repositories and it's not always clear what they do or if you need them to be able to start coding on Lamden.
 
 Here's a short overview of the Python code that you should have heard of:
 
 [lamden](https://github.com/Lamden/lamden) - The Lamden node
 
 - **Important for development**
-  
+
+- Requires MongoDB
+
 - Install via `pip install lamden`
-  
-- This module represents the Lamden node. You don't need to run your own node to be able to develop something on Lamden but if you install it then your ready since it's all you need and also includes the `contracting` module.
-  
+
+- This module represents the Lamden node. You don't need to run your own node to be able to develop something on Lamden but if you install it then you're ready to start since it includes everything you need.  The `lamden` module depends on the `contracting` module so that you don't need to install that separately.
 
 [contracting](https://github.com/Lamden/contracting) - Interact with smart contracts
 
+- **Important for development**
+
+- Requires MongoDB
+
 - Install via `pip install contracting`
-  
+
 - This is what you need to be able to interact with smart contracts. But since the `lamden` module is already depending on this module, just install `lamden`.
-  
 
 [cilantro-enterprise](https://github.com/Lamden/cilantro-enterprise) - The (old) Lamden node
 
@@ -86,23 +97,20 @@ Here's a short overview of the Python code that you should have heard of:
 [clove](https://github.com/Lamden/clove) - Exchange crypto via atomic swaps
 
 - Not needed for development
-  
+
 - Install via `pip install clove`
-  
 
 [flora](https://github.com/Lamden/flora) - Distributed smart contract package manager
 
 - Not needed for development
-  
+
 - Installable via `pip install flora`
-  
 
 [lampy](https://github.com/Lamden/lampy) - Lamden Python Client
 
 - **Outdated! Don't use**
-  
-- You can check this out to better understand how you could write your own Lamden client but don't install it.
-  
+
+- You can check this out to better understand how you could write your own Lamden client but don't install this module.
 
 [smart_contracts](https://github.com/Lamden/smart_contracts) - Example smart contracts on Lamden
 
@@ -114,7 +122,7 @@ Here's a short overview of the Python code that you should have heard of:
 
 ### Generate key pair
 
-The Lamden protocol uses [ED25519](https://ed25519.cr.yp.to/) for cryptographic keys and the [PyNaCl](https://pynacl.readthedocs.io/en/stable/) library for the specific Python bindings of the original C code. If you just want to be able to generate valid key pairs then it's enough to install the `pynacl`module:
+The Lamden protocol uses [ED25519](https://ed25519.cr.yp.to/) for cryptographic keys and the [PyNaCl](https://pynacl.readthedocs.io/en/stable/) library for the specific Python bindings of the original C code. If you just want to be able to generate valid key pairs then it's enough to install the `pynacl` module:
 
 ```shell
 pip3 install pynacl
@@ -146,7 +154,7 @@ print("privkey", privkey)
 # privkey 01c4763eadd4285cc31fdd60dedb4fa7c68f29e325775dc7f7f082bbab9b5fc9
 ```
 
-If you already have a hex private key and you want to generate the seed to get the corresponding address or sign a message or something like that:
+If you already have a hex private key and you want to generate the seed to get the corresponding public address or sign a message or something like that:
 
 ```python
 seed = bytes.fromhex(seed)
@@ -166,7 +174,7 @@ But you need to be aware that **you will need to install MongoDB to be able to s
 
 #### Wallet creation
 
-To instanciate a wallet:
+To instanciate a new wallet:
 
 ```python
 from lamden.crypto.wallet import Wallet
@@ -228,7 +236,6 @@ print("signature", signature)
 # signature ba32fcfa1b975f1572a1be21efa949d29f3a9e15e064d0e8d5f90eff596a204dd20ad8ca53161224ff62e97c147aba297f9ba8fd3a1eb8223c095cf6bcc85409
 
 # Let's verify that the message was signed by my public address
-signature = "ba32fcfa1b975f1572a1be21efa949d29f3a9e15e064d0e8d5f90eff596a204dd20ad8ca53161224ff62e97c147aba297f9ba8fd3a1eb8223c095cf6bcc85409"
 was_it_me = verify(wallet.verifying_key, message, signature)
 
 print("was_it_me", was_it_me)
@@ -237,11 +244,11 @@ print("was_it_me", was_it_me)
 # was_it_me True
 ```
 
-#### Sending transaction
+### Sending transaction
 
 The next step could be to send a transaction. But before we can actually do that we need to get a [nonce](https://en.wikipedia.org/wiki/Cryptographic_nonce) from the node that will process our transaction.
 
-##### Get a nonce
+#### Get a nonce
 
 So how do we get a nonce? First of all we need to know how to connect to a node on the network. We need some masternode address:
 
@@ -253,7 +260,7 @@ Testnet Masternode
 https://testnet-master-1.lamden.io
 ```
 
-Next we need to understand how to communicate with the node. There is a [REST API](https://docs.lamden.io/docs/develop/blockchain/masternode_api) that we can use. Specifically the ["get transaction nonce" route](https://docs.lamden.io/docs/develop/blockchain/masternode_api#get-transaction-nonce). We can call the following URL in a browser to get a nonce for our public address (on the testnet):
+Next we need to understand how to communicate with the node. There is a [REST API](https://docs.lamden.io/docs/develop/blockchain/masternode_api) that we can use. Specifically the ["get transaction nonce" route](https://docs.lamden.io/docs/develop/blockchain/masternode_api#get-transaction-nonce). We can call the following URL in a browser to get a nonce for our public address (on the Testnet):
 
 ```
 https://testnet-master-1.lamden.io/nonce/77b9c48aa5e43d5bff575140f484bbda55ad2a619160b5eb5c04d8f27f437686
@@ -271,23 +278,25 @@ The JSON reply we get looks something like this:
 
 The `processor` is the public address (verifying key) of the node, `sender` is our own public address and `nonce` is the transaction counter for our address.
 
-##### Stamps
+#### Stamps (fee)
 
-We will also need to define how much [stamps](https://contracting.lamden.io/concepts/stamps) we want to use (which is basically a way to determine the fee that needs to be payed in order to be able to send a transaction). A generally good value for `stamps` is `100`.
+We will also need to define how much [stamps](https://contracting.lamden.io/concepts/stamps) we want to use (which is basically a way to determine the maximum fee that we are willing to pay for sending a transaction - similar to gas on Ethereum). Transactions only use the stamps they need. If you define a higher amount than needed then you won't automatically be charged that amount. A generally good value for `stamps` is `100`.
 
-Stamps are converted to TAU (the native coin on the Landom blockchain) automatically based on the type of operation that needs to be done by the node and that is defined in the transaction.
+Stamps are converted to TAU (the native coin on the Landom blockchain) automatically based on the type of operation that needs to be executed by the node and that is defined in the transaction.
 
-**To be able to send TAU around and pay for stamps we need a balance first. Let's get some testnet TAU so that we can try things out.** There is a [Lamden Faucet](https://developers.lamden.io/testnet) that you can use to get dTAU.
+#### Coins (TAU)
 
-##### Contract & function
+To be able to send TAU around and pay for stamps we need a balance first. Let's get some Testnet TAU (also called "dTAU") so that we can try things out. There is a [Lamden Faucet](https://developers.lamden.io/testnet) that you can use to get dTAU.
+
+#### Contract & function
 
 Since Lamden is heavily based on smart contracts, every transaction that is being sent triggers a smart contract. Even sending TAU coins from one address to another executes a smart contract.
 
-And since that is the case, we also need to specify the contract name and the function name withing that contract that needs to be executed with our transaction.
+And since that is the case, we also need to specify the contract name and the function name withing that contract that we want to be executed with our transaction.
 
 For a normal transfer of TAU coins the contract name is `currency` and the function name is `transfer`.
 
-##### Sending
+#### Sending
 
 Now that we have all the details we can finally send the transaction via the [REST API](https://docs.lamden.io/docs/develop/blockchain/masternode_api#post-transaction) but please note that **it's important that the node that sent us the nonce is also the one that will process the transaction**:
 
@@ -309,7 +318,7 @@ to_address = "2f3d50e4528e196233617645f85c76b4c6256f307ef3c3213aabe5a6ce956900"
 amount = 1
 
 # URL to get nonce for our address
-url = "https://masternode-01.lamden.io"
+url = "https://testnet-master-1.lamden.io"
 
 nonce = requests.get(f"{url}/nonce/{address}")
 nonce = json.loads(nonce.text)
@@ -336,6 +345,14 @@ tx = json.loads(tx.text)
 tx_hash = tx["hash"]
 ```
 
+#### Info
+
+Once you have sent a transaction and got the transaction hash back, you can check the details for that transaction directly on the Block Explorer ([Testnet](https://explorer.lamden.io), [Mainnet](https://mainnet.lamden.io)) by entering your transaction hash or you can call a REST API and provide your hash as a parameter:
+
+```
+https://explorer.lamden.io/transactions/8d217a15f33bc20f018b54e2fc88f248b7bf2752c3ce84761cc31609620a12f1
+```
+
 ### Smart contracts
 
 As already said previously, Lamden is heavily based on smart contracts and thus every transaction executes a smart contract. You can get a list of all available smart contracts by calling this [REST API](https://docs.lamden.io/docs/develop/blockchain/masternode_api/#get-contracts).
@@ -346,27 +363,166 @@ The official documentation for smart contract development can be found [here](ht
 
 #### Coding
 
-You can code a smart contract directly in your [Chrome wallet](https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim) and also test it there for basic correctness.
+You can code a smart contract directly from within the [Chrome wallet](https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim) and also test it there for basic correctness. Or you can of course use your editor of choice or Python IDE.
+
+![](/Users/dave/Library/Application%20Support/marktext/images/2021-02-25-22-37-02-image.png)
 
 #### Testing
 
-#### Deploying
-
-Deploy Smart Contracts with:
+You can very easily test your created smart contract locally without the need to deploy it first to Mainnet or Testnet. Let's assume we have a contract with following methods:
 
 ```python
-from contracting.client import ContractingClient
+@export
+def hello():
+    return 'world!'
+
+@export
+def add(a: int, b: int):
+    return private_add(a, b)
+
+def private_add(a, b):
+    return a + b
 ```
 
-## Things to check out:
+The `hello()` method replies `Hello World` and the `add()` method can add up two Integers. This is what a smart contract on Lamden looks like. To test it locally we can do the following:
 
-- [Smart contract documentation](https://contracting.lamden.io)
-- ...
+```python
+# Wrap contract methods in parent method 'greeting()' 
+# so that we are able to reference the contract
+def greeting():
+    @export
+    def hello():
+        return 'Hello World!'
+
+    @export
+    def add(a: int, b: int):
+        return private_add(a, b)
+
+    def private_add(a, b):
+        return a + b
+
+from contracting.client import ContractingClient
+
+# Client to interact with local contracts
+client = ContractingClient()
+
+# Submit contract locally
+client.submit(greeting)
+
+# List all locally available contracts
+print("contracts", client.get_contracts())
+
+# Retrieve local contract
+greeting = client.get_contract("greeting")
+
+# Execute contract method 'hello()'
+print("greeting - hello()", greeting.hello())
+# Execute contract method 'add()'
+print("greeting - add()", greeting.add(a=1, b=3))
+
+# Output
+# contracts ['submission', 'greeting']
+# greeting - hello() Hello World!
+# greeting - add() 4
+```
+
+As you can see it's super easy to write a contract and test it locally. There is also an article available about [how to run your own development server](https://blog.lamden.io/python-smart-contract-dev-server-f81bd605a92c).
+
+#### Deploying
+
+So what if you wrote a smart contract, tested it locally and now want to deploy it to the network? Here's what you do:
+
+1. Open your [Chrome wallet](https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim)
+
+2. In upper right corner choose to which network to connect: **Testnet** or **Mainnet**
+
+3. Paste contract code into the `Smart Contracts` Tab and press the `SUBMIT TO NETWORK` button
+
+4. Choose the account you want to use for the deployment. Then enter the contract name (needs to start with `con_`) and the max amount of stamps (per single transaction) that can be used by the contract, into the form. Everything else is optional. Now hit the `SUBMIT CONTRACT` button.
+
+5. If the contract is OK then you will be charged some TAU and your contract will be deployed to the previously chosen network.
+
+You can also deploy the contract programatically. Since everything on Lamden is smart contract based, even deploying smart contracts will internally trigger the `submission` contract with its `submit_contract` method. You can read more about that [here](https://contracting.lamden.io/concepts/submission).
+
+#### Executing
+
+Let's assume we wrote a smart contract and deployed it to the network. How can we execute it? All we need to do is to send a transaction and specify the contract-name and contract-function that need to be executed.
+
+For this example we want to execute the `con_dice` contract and its function `roll`. It doesn't need any input and will deliver a random number between 1 and 6. You can view the contract [here](https://www.tauhq.com/contracts/con_dice).
+
+```python
+import time
+import json
+import requests
+
+from lamden.crypto.transaction import build_transaction
+from lamden.crypto.wallet import Wallet
+
+# Wallet address
+address = "77b9c48aa5e43d5bff575140f484bbda55ad2a619160b5eb5c04d8f27f437686"
+# Wallet private key
+privkey = "01c4763eadd4285cc31fdd60dedb4fa7c68f29e325775dc7f7f082bbab9b5fc9"
+
+# Get nonce for our address
+url = "https://testnet-master-1.lamden.io"
+nonce = requests.get(f"{url}/nonce/{address}")
+nonce = json.loads(nonce.text)
+
+# Build transaction
+tx = build_transaction(
+    wallet=Wallet(privkey),
+    processor=nonce["processor"],
+    stamps=100,
+    nonce=nonce["nonce"],
+    contract="con_dice",
+    function="roll",
+    kwargs={}
+)
+
+# Send transaction
+dice_roll = requests.post(url, data=tx)
+tx_hash = json.loads(dice_roll.text)
+tx_hash = tx_hash["hash"]
+
+# Wait to make sure that transaction is already processed
+time.sleep(1)
+
+# Get transaction details for given tx hash
+result = requests.get(f"{url}/tx?hash={tx_hash}")
+result = json.loads(result.text)
+result = result["result"]
+print("dice - roll", result)
+
+# Example Output
+# dice - roll 6
+```
+
+## Links
+
+Additional links to check out
+
+- [The Tokenomics of the Lamden](https://blog.lamden.io/the-tokenomics-of-the-lamden-tau-cryptocurrency-pt-1-6845e5375b6) - Project fundamentals
+- [Info about Nodes, Governance and Architecture](https://developers.lamden.io/docs/lamden-core/lamden-core) - Important topics
+- [Lamden for Developers](https://developers.lamden.io) - Mostly frontend developers
+- [Smart contract documentation](https://contracting.lamden.io) - Mostly backend developers
+- [Masternode REST API](https://docs.lamden.io/docs/develop/blockchain/masternode_api) - API to communicate with Masternodes
+- [Block Explorer REST API](https://github.com/Lamden/block-explorer-api/tree/master/api) - Check out the `config` sub-folders
+- [Lamden Blog](https://blog.lamden.io) - Current news and info about fundamentals
+- [Mainnet Explorer](https://mainnet.lamden.io) - View transaction results on Mainnet
+- [Testnet Explorer](https://explorer.lamden.io) - View transaction results on Testnet
+- [Alternative Explorer with additional functionality](https://www.tauhq.com) - View dApps and contracts
+- [Example Python API Wrapper](https://github.com/Endogen/tgbf-lamden/blob/master/tgbf/lamden/api.py) - For Masternodes API and Explorer API
+
+
+
+## Let's have some fun
+
+If you like mazes then let's get your hands dirty on a Lamden-Maze!
+
+![](/Users/dave/Library/Application%20Support/marktext/images/2021-02-26-02-55-56-image.png)
+
+# Integrate
+
+- Wieso wir die `decode` Methode brauchen und wo wir sie finden
   
-
-## Interesting facts:
-
-- Custom blockchain, not a fork of any other project
-- Native coin ticker is TAU
-- TAU has 30 Decimals
-- ...
+  - `balance` abfragen liefert verschiedene Werte zurück

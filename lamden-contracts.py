@@ -1,10 +1,9 @@
-from contracting.client import ContractingClient
-client = ContractingClient()
-
+# Wrap contract methods in parent method 'greeting()' 
+# so that we are able to reference the contract
 def greeting():
     @export
     def hello():
-        return 'World!'
+        return 'Hello World!'
 
     @export
     def add(a: int, b: int):
@@ -13,26 +12,26 @@ def greeting():
     def private_add(a, b):
         return a + b
 
-def split_send():
-	@export
-	def send(addresses: Array, total_amount: float):
-		single_amount = total_amount / len(addresses)
-		print("single_amount", single_amount)
+from contracting.client import ContractingClient
 
-		for address in addresses:
-			currency.transfer_from(amount = single_amount, to=address, main_account=ctx.signer)
+# Client to interact with local contracts
+client = ContractingClient()
 
-def dice():
-	@export
-	def roll():
-		# TODO: Use hash function somehow
-		pass
+# Submit contract locally
+client.submit(greeting)
 
-client.submit(split_send)
-print(client.get_contracts())
+# List all locally available contracts
+print("contracts", client.get_contracts())
 
-split_send = client.get_contract("split_send")
+# Retrieve local contract
+greeting = client.get_contract("greeting")
 
-addresses = []
+# Execute contract method 'hello()'
+print("greeting - hello()", greeting.hello())
+# Execute contract method 'add()'
+print("greeting - add()", greeting.add(a=1, b=3))
 
-print(split_send(addresses, 10))
+# Output
+# contracts ['submission', 'greeting']
+# greeting - hello() Hello World!
+# greeting - add() 4
