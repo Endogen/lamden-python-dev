@@ -120,6 +120,12 @@ Here's a short overview of the Python code that you should have heard of:
 
 - Check the examples if you want to create your own NFT tokens
 
+### Client Implementation
+
+Lamden doesn't provide an official Python client implementation. There is [lampy](https://github.com/Lamden/lampy) but it's out of date and you shouldn't use it anymore. But you can surely take a look to understand how to build a client. In the end the `lamden` module is all you need and you can build on top of that.
+
+If you need to interact with the [Masternode API](https://docs.lamden.io/docs/develop/blockchain/masternode_api) or the [Block Explorer API](https://github.com/Lamden/block-explorer-api/blob/master/api/state/config/routes.json) then you can easily write your own client or you can take a look at [this implementation here](https://github.com/Endogen/tgbf-lamden/blob/master/tgbf/lamden/api.py).
+
 ### Generate key pair
 
 The Lamden protocol uses [ED25519](https://ed25519.cr.yp.to/) for cryptographic keys and the [PyNaCl](https://pynacl.readthedocs.io/en/stable/) library for the specific Python bindings of the original C code. If you just want to be able to generate valid key pairs then it's enough to install the `pynacl` module:
@@ -260,7 +266,7 @@ Testnet Masternode
 https://testnet-master-1.lamden.io
 ```
 
-Next we need to understand how to communicate with the node. There is a [REST API](https://docs.lamden.io/docs/develop/blockchain/masternode_api) that we can use. Specifically the ["get transaction nonce" route](https://docs.lamden.io/docs/develop/blockchain/masternode_api#get-transaction-nonce). We can call the following URL in a browser to get a nonce for our public address (on the Testnet):
+Next we need to understand how to communicate with the node. There is a [REST API](https://docs.lamden.io/docs/develop/blockchain/masternode_api) that we can use. Specifically the ["get transaction nonce" route](https://docs.lamden.io/docs/develop/blockchain/masternode_api#get-transaction-nonce). We can call the following URL to get a nonce for our public address (on the Testnet):
 
 ```
 https://testnet-master-1.lamden.io/nonce/77b9c48aa5e43d5bff575140f484bbda55ad2a619160b5eb5c04d8f27f437686
@@ -365,7 +371,7 @@ The official documentation for smart contract development can be found [here](ht
 
 You can code a smart contract directly from within the [Chrome wallet](https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim) and also test it there for basic correctness. Or you can of course use your editor of choice or Python IDE.
 
-![](/Users/dave/Library/Application%20Support/marktext/images/2021-02-25-22-37-02-image.png)
+![](lamden-wallet.png)
 
 #### Testing
 
@@ -499,7 +505,7 @@ print("dice - roll", result)
 
 ## Links
 
-Additional links to check out
+Additional links to follow
 
 - [The Tokenomics of the Lamden](https://blog.lamden.io/the-tokenomics-of-the-lamden-tau-cryptocurrency-pt-1-6845e5375b6) - Project fundamentals
 - [Info about Nodes, Governance and Architecture](https://developers.lamden.io/docs/lamden-core/lamden-core) - Important topics
@@ -513,13 +519,11 @@ Additional links to check out
 - [Alternative Explorer with additional functionality](https://www.tauhq.com) - View dApps and contracts
 - [Example Python API Wrapper](https://github.com/Endogen/tgbf-lamden/blob/master/tgbf/lamden/api.py) - For Masternodes API and Explorer API
 
+## The End
 
+Seems like you reached the end. Let's have some fun before you dive deeper into Python. Two dots, start and end. Choose one and try to get to the other.
 
-## Let's have some fun
-
-If you like mazes then let's get your hands dirty on a Lamden-Maze!
-
-![](/Users/dave/Library/Application%20Support/marktext/images/2021-02-26-02-55-56-image.png)
+![](lamden-maze.png)
 
 # Integrate
 
