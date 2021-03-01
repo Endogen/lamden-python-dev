@@ -15,7 +15,7 @@ to_address = "2f3d50e4528e196233617645f85c76b4c6256f307ef3c3213aabe5a6ce956900"
 amount = 1
 
 # URL to get nonce for our address
-url = "https://masternode-01.lamden.io"
+url = "https://testnet-master-1.lamden.io"
 
 nonce = requests.get(f"{url}/nonce/{address}")
 nonce = json.loads(nonce.text)
@@ -37,6 +37,12 @@ tx_data = build_transaction(
 # Send transaction
 tx = requests.post(url, data=tx_data)
 tx = json.loads(tx.text)
+print("tx", tx)
 
 # Get transaction hash
 tx_hash = tx["hash"]
+print("hash", tx_hash)
+
+# Output
+# tx {'success': 'Transaction successfully submitted to the network.', 'hash': '002c078784ccc8d273fab654f3586087c4a7b23a9745b2181d874078b4204c7f'}
+# tx_hash 002c078784ccc8d273fab654f3586087c4a7b23a9745b2181d874078b4204c7f
