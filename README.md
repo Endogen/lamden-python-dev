@@ -454,7 +454,7 @@ So what if you wrote a smart contract, tested it locally and now want to deploy 
 
 5. If the contract is OK then you will be charged some TAU and your contract will be deployed to the previously chosen network.
 
-You can also deploy the contract programatically. Since everything on Lamden is smart contract based, even deploying smart contracts will internally trigger the `submission` contract with its `submit_contract` method. You can read more about that [here](https://contracting.lamden.io/concepts/submission).
+You can also deploy the contract programmatically. Since everything on Lamden is smart contract based, even deploying smart contracts will internally trigger the `submission` contract with its `submit_contract` method. You can read more about that [here](https://contracting.lamden.io/concepts/submission).
 
 #### Executing
 
@@ -511,7 +511,7 @@ print("dice - roll", result)
 
 ## Good to know
 
-### decode()
+### Format output with decode()
 
 REST API calls can return dictionaries that don't always include the same key. You can use `decode()` to convert the dictionaries into a structure that you can assume will not change.
 
@@ -522,12 +522,12 @@ from lamden.crypto.wallet import Wallet
 from contracting.db.encoder import decode
 
 def get_balance(address):
-	# Explorer URL
-	url = "https://masternode-01.lamden.io"
+    # Explorer URL
+    url = "https://masternode-01.lamden.io"
 
-	# Get balance for a given address
-	res = requests.get(f"{url}/contracts/currency/balances?key={address}")
-	return res.text
+    # Get balance for a given address
+    res = requests.get(f"{url}/contracts/currency/balances?key={address}")
+    return res.text
 
 # Private key of wallet with balance
 privkey = "17790cb73293eb1b46ac3e10bc3a62fe6826404d32635c0cfee6893d3e6a7aed"
@@ -547,6 +547,165 @@ print("balance", decode(balance))
 # balance {"value":{"__fixed__":"125.35"}}
 # balance {'value': Decimal('125.35')}
 ```
+
+### Check transaction status
+
+If you send TAU from one address to another then check if the result includes the `error` keyword. If yes then the value of that keyword is the error message.
+
+But if you execute a smart contract then you will always get a success message and a transaction hash back. To know if the contract was successfully executed you need to check the transaction details. **But do not check the transaction details immediately after you triggered a transaction. Wait for a second to make sure that it's processed**.
+
+```python
+import requests
+import json
+
+# Maternode URL (testnet)
+url = "https://testnet-master-1.lamden.io"
+
+# Transaction hash from triggering a smart contract
+tx_hash = "66ffc0ffc5427ae2fb7b7a57137490f1ec1ace54071c1dd71e5a476d427a2079"
+
+# Get transaction details for given tx hash
+result = requests.get(f"{url}/tx?hash={tx_hash}")
+result = json.loads(result.text)
+print("result", result)
+
+# Output
+# {'hash': '66ffc0ffc5427ae2fb7b7a57137490f1ec1ace54071c1dd71e5a476d427a2079', 'result': 'None', 'stamps_used': 32, 'state': [{'key': 'currency.balances:77b9c48aa5e43d5bff575140f484bbda55ad2a619160b5eb5c04d8f27f437686:con_multisend', 'value': {'__fixed__': '0.0'}}, {'key': 'currency.balances:77b9c48aa5e43d5bff575140f484bbda55ad2a619160b5eb5c04d8f27f437686', 'value': {'__fixed__': '417.8461538461538465'}}, {'key': 'currency.balances:b0bb69bb8722e0b3364ada9d1d96675e8025f552e7d03770618c43b7df0584a5', 'value': 40}, {'key': 'currency.balances:523e4db1ad94e8c70d63b788b4a4356e5fd9f026b3f1b16e115386fdb70ffb4d', 'value': 30}], 'status': 0, 'transaction': {'metadata': {'signature': '13f216bdcafbb3101ce52c1306d6ed6ee848901980426ad6e5e166d61838575cc23951dae33c80da799f365ec534efc98c9f1197ada74f2606284c2e647eb701', 'timestamp': 1614641383}, 'payload': {'contract': 'con_multisend', 'function': 'send', 'kwargs': {'addresses': ['b0bb69bb8722e0b3364ada9d1d96675e8025f552e7d03770618c43b7df0584a5', '523e4db1ad94e8c70d63b788b4a4356e5fd9f026b3f1b16e115386fdb70ffb4d'], 'amount': 10}, 'nonce': 30, 'processor': '89f67bb871351a1629d66676e4bd92bbacb23bd0649b890542ef98f1b664a497', 'sender': '77b9c48aa5e43d5bff575140f484bbda55ad2a619160b5eb5c04d8f27f437686', 'stamps_supplied': 500}}}
+
+# Check value of 'status' to know if contract was executed successfully
+# status == 0 --> Success
+# status == 1 --> Error
+status = result["status"]
+print("status", status)
+
+# Output
+# status 0
+```
+
+Once transaction details are available, check the `status` key in the JSON reply. If the value is `0` then the contract was executed successfully. If the value is `1` then something went wrong and you might want to check the `result` key to get an error message.
+
+### Approve contract to send TAU
+
+Writing contracts is straight forward but you should know the following: If you write a contract that is intended to spend TAU on behalf of the user then that smart contract needs to approve the amount that it wants to spend first.
+
+Let's say you have this simple smart contract that sends out TAU to multiple addresses.
+
+```python
+import currency
+
+@export
+def send(addresses: list, amount: float):
+    for address in addresses:
+        currency.transfer_from(amount=amount, to=address, main_account=ctx.signer)
+```
+
+That contract actually exists and is available on Mainnet and Testnet. If you try to execute that contract then you will get a success message back.
+
+```python
+import json
+import requests
+
+from lamden.crypto.transaction import build_transaction
+from lamden.crypto.wallet import Wallet
+
+# Private key to send TAU from
+privkey = "01c4763eadd4285cc31fdd60dedb4fa7c68f29e325775dc7f7f082bbab9b5fc9"
+
+# Generate wallet to send TAU from
+wallet = Wallet(privkey)
+
+# Public address to send TAU from
+address = wallet.verifying_key
+
+# Amount of TAU to send
+amount = 10
+
+# Maternode URL (testnet)
+url = "https://testnet-master-1.lamden.io"
+
+# Get nonce for our address
+nonce = requests.get(f"{url}/nonce/{address}")
+nonce = json.loads(nonce.text)
+
+# List of addresses to send TAU to
+addresses = [
+	"b0bb69bb8722e0b3364ada9d1d96675e8025f552e7d03770618c43b7df0584a5",
+	"523e4db1ad94e8c70d63b788b4a4356e5fd9f026b3f1b16e115386fdb70ffb4d"
+]
+
+# Build transaction to trigger 'con_multisend' contract
+tx = build_transaction(
+    wallet=wallet,
+    processor=nonce["processor"],
+    stamps=500,
+    nonce=nonce["nonce"],
+    contract="con_multisend",
+    function="send",
+    kwargs={"addresses": addresses, "amount": amount}
+)
+
+# Send transaction
+result = requests.post(url, data=tx)
+print("con_multisend", result.text)
+
+# Output
+# con_multisend {"success":"Transaction successfully submitted to the network.","hash":"76446ec982d7abef06768169a260e9b57fec42d4de9129a9df4fb91fb64dc3f1"}
+```
+
+But if you then try to [lookup the transaction hash in the explorer](https://testnet.lamden.io/transactions/c14908ec1954f0a5b26d13f75e813d2ac329e7f07818f970ccd495ba76374ed0) you will find that the transaction (meaning the smart contract execution) didn't go through. The error is:
+
+```
+AssertionError('Not enough coins approved to send! You have 0 and are trying to spend 10',)
+```
+
+So you need to approve the contract and the amount first. Doing that means sending another transaction.
+
+```python
+# Maternode URL (testnet)
+url = "https://testnet-master-1.lamden.io"
+
+# Get new nonce for our address
+nonce = requests.get(f"{url}/nonce/{address}")
+nonce = json.loads(nonce.text)
+
+# Build transaction to approve contract to spend TAU
+# We need to approve double the amount since we want 
+# to send 10 TAU to each of the two addresses
+tx = build_transaction(
+    wallet=wallet,
+    processor=nonce["processor"],
+    stamps=500,
+    nonce=nonce["nonce"],
+    contract="currency",
+    function="approve",
+    kwargs={"amount": float(amount * 2), "to": "con_multisend"}
+)
+
+# Send transaction
+approve = requests.post(url, data=tx)
+print("approve", approve.text)
+
+# Output
+# approve {"success":"Transaction successfully submitted to the network.","hash":"e3debf48c179fb96ca0f1902b348ef675d488300525a9dc7c740911f8a5aeaff"}
+```
+
+After approving let's check the approved amount
+
+```python
+# Get amount of TAU that is approved to be spent by the smart contract
+key = f"{wallet.verifying_key}:con_multisend"
+verify = requests.get(f"{url}/contracts/currency/balances?key={key}")
+print("verify", verify.text)
+
+# Output
+# verify {"value":{"__fixed__":"20.0"}}
+```
+
+If you execute the `con_multisend` contract again after the approval then it should be possible to spend your coins as intended.
+
+If you don't want to approve each individual amount that you want to send via smart contract for a given address then you might want to approve a very high amount that will never be reached so that you only need to do the approval once and then can spend TAU on behalf of that address indefinitely.
+
+If you want to have that ready to be reused then you might want to take a look at this client implementation: [`get_approved_amount()`](https://github.com/Endogen/tgbf-lamden/blob/4c76df0454e923547e584d28d204598e588e3dc3/tgbf/lamden/api.py#L133) and [`approve_contract()`](https://github.com/Endogen/tgbf-lamden/blob/4c76df0454e923547e584d28d204598e588e3dc3/tgbf/lamden/api.py#L128).
 
 ## Links
 
