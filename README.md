@@ -4,7 +4,7 @@ Getting started fast with developing on the Lamden blockchain
 
 ---
 
-[Lamden](https://lamden.io) is a performant blockchain built on Python that is specifically targeting Python developers. It's heavily build on smart contracts, transactions are super fast an it's easy to interact with. This short guide is meant to get you started even faster on Lamden.
+The [Lamden blockchain](https://lamden.io) is heavily build on smart contracts and shines with blazing fast transactions, while on top interaction is pretty easy. This short guide is meant to get you started even faster.
 
 But first of all, why should you care? There are countless other blockchains out there, right? Well, let's see:
 
